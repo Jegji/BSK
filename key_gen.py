@@ -6,7 +6,6 @@ from cryptography.hazmat.backends import default_backend
 from cryptography.hazmat.primitives.asymmetric import rsa
 from cryptography.hazmat.primitives.ciphers import Cipher, modes, algorithms
 from cryptography.hazmat.primitives.kdf.pbkdf2 import PBKDF2HMAC
-from pycparser.c_ast import Constant
 
 CONSTANT_SALT = b'\x00' * 16
 CONSTANT_IV = b'\x00' * 16
@@ -14,7 +13,7 @@ CONSTANT_IV = b'\x00' * 16
 def gen_key():
     key = rsa.generate_private_key(
         public_exponent=65537,
-        key_size=2048,
+        key_size=4096,
     )
     private_key = key.private_bytes(
         encoding=serialization.Encoding.PEM,
@@ -86,6 +85,7 @@ def main():
     pin = get_pin()
     encrypted_key = encrypt_pin(pin, private_key)
     save_key_to_file('E:\\private_key.pem', encrypted_key)
+    save_key_to_file('S:\\Downloads\\public_key.pem', public_key)
 
     if private_key != encrypted_key:
         print("Key encrypted successfully!")
