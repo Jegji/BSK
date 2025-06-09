@@ -6,13 +6,11 @@ import tkinter as tk
 from tkinter import filedialog, simpledialog
 
 from PyPDF2 import PdfReader, PdfWriter
-from datetime import datetime
-from cryptography.hazmat.primitives import hashes, padding, serialization
+from cryptography.hazmat.primitives import hashes, padding
 from cryptography.hazmat.backends import default_backend
 from cryptography.hazmat.primitives.ciphers import Cipher, modes, algorithms
 from cryptography.hazmat.primitives.kdf.pbkdf2 import PBKDF2HMAC
 from cryptography.hazmat.primitives.asymmetric import padding as asymmetric_padding
-from cryptography.hazmat.primitives.asymmetric.padding import PSS
 from cryptography.hazmat.primitives.serialization import load_pem_public_key, load_pem_private_key
 
 CONSTANT_SALT = b'\x00' * 16

@@ -1,5 +1,5 @@
 import tkinter as tk
-from tkinter import messagebox
+from tkinter import messagebox, filedialog
 from cryptography.hazmat.primitives import serialization, hashes, padding
 from cryptography.hazmat.backends import default_backend
 from cryptography.hazmat.primitives.asymmetric import rsa
@@ -58,7 +58,10 @@ class KeyGenApp:
     def __init__(self, root):
         self.root = root
         self.root.title("RSA Key Generator")
-        self.root.geometry("400x300")
+        self.root.geometry("400x400")
+
+        self.private_key_dir = None
+        self.public_key_dir = None
 
         self.label = tk.Label(root, text="Enter PIN (4 digits):", font=("Arial", 12))
         self.label.pack(pady=10)
@@ -66,13 +69,44 @@ class KeyGenApp:
         self.pin_entry = tk.Entry(root, show="*", font=("Arial", 12), width=10)
         self.pin_entry.pack(pady=10)
 
+        self.select_private_dir_button = tk.Button(root, text="Select Private Key Directory", command=self.select_private_directory, font=("Arial", 12))
+        self.select_private_dir_button.pack(pady=10)
+
+        self.select_public_dir_button = tk.Button(root, text="Select Public Key Directory", command=self.select_public_directory, font=("Arial", 12))
+        self.select_public_dir_button.pack(pady=10)
+
         self.generate_button = tk.Button(root, text="Generate Keys", command=self.generate_keys, font=("Arial", 12))
         self.generate_button.pack(pady=20)
 
         self.status_label = tk.Label(root, text="Status: Waiting for action", font=("Arial", 10))
         self.status_label.pack(pady=10)
 
+    def select_private_directory(self):
+        directory = filedialog.askdirectory(title="Select Private Key Directory")
+        if directory:
+            self.private_key_dir = directory
+            self.status_label.config(text=f"Status: Private key directory selected: {directory}")
+            print(f"Private key directory selected: {directory}")
+        else:
+            self.status_label.config(text="Status: No private key directory selected")
+            print("No private key directory selected.")
+
+    def select_public_directory(self):
+        directory = filedialog.askdirectory(title="Select Public Key Directory")
+        if directory:
+            self.public_key_dir = directory
+            self.status_label.config(text=f"Status: Public key directory selected: {directory}")
+            print(f"Public key directory selected: {directory}")
+        else:
+            self.status_label.config(text="Status: No public key directory selected")
+            print("No public key directory selected.")
+
     def generate_keys(self):
+        if not self.private_key_dir or not self.public_key_dir:
+            messagebox.showerror("Error", "Please select both private and public key directories.")
+            print("Error: Directories not selected.")
+            return
+
         pin = self.pin_entry.get()
         if len(pin) != 4 or not pin.isdigit():
             messagebox.showerror("Error", "PIN must be exactly 4 digits.")
@@ -83,8 +117,11 @@ class KeyGenApp:
             private_key, public_key = gen_key()
             encrypted_key = encrypt_pin(pin, private_key)
 
-            save_key_to_file('E:\\private_key.pem', encrypted_key)
-            save_key_to_file('S:\\Downloads\\public_key.pem', public_key)
+            private_key_path = f"{self.private_key_dir}/private_key.pem"
+            public_key_path = f"{self.public_key_dir}/public_key.pem"
+
+            save_key_to_file(private_key_path, encrypted_key)
+            save_key_to_file(public_key_path, public_key)
 
             self.status_label.config(text="Status: Keys generated successfully!")
             messagebox.showinfo("Success", "Keys have been generated and saved.")
