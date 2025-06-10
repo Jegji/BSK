@@ -1,3 +1,7 @@
+"""
+@file app.py
+@brief This file contains the implementation of a PDF encryption and signature validation tool.
+"""
 import datetime
 import os
 import threading
@@ -17,6 +21,10 @@ CONSTANT_SALT = b'\x00' * 16
 CONSTANT_IV = b'\x00' * 16
 
 class App:
+    """
+    @class App
+    @brief A GUI application for signing and validating PDF files using RSA keys.
+    """
     is_usb_connected = False
     private_key = None
     pin = None
@@ -26,6 +34,10 @@ class App:
     dataTest = None
 
     def __init__(self, root):
+        """
+        @brief Initializes the App class.
+        @param root The root Tkinter window.
+        """
         self.root = root
         self.root.title("PDF Encryption Tool")
         self.root.geometry("350x200")
@@ -49,6 +61,10 @@ class App:
         self.monitor_thread.start()
 
     def check_usb(self):
+        """
+        @brief Checks if a USB drive is connected.
+        @return True if a USB drive is detected, False otherwise.
+        """
         drive_letter = "E:"
         if os.path.exists(drive_letter + "\\"):
             return True
@@ -56,6 +72,9 @@ class App:
             return False
 
     def get_key(self):
+        """
+        @brief Retrieves and decrypts the private key from the USB drive.
+        """
         drive_letter = "E:"
         key_file_path = os.path.join(drive_letter, "private_key.pem")
         if not os.path.exists(key_file_path):
@@ -95,10 +114,16 @@ class App:
             self.correct_pin = None
 
     def ask_for_pin(self):
+        """
+        @brief Prompts the user to enter a PIN.
+        """
         pin_input = simpledialog.askstring("Input", "Please enter pin:")
         self.pin = pin_input
 
     def monitor_usb(self):
+        """
+        @brief Monitors the USB drive for connection and key presence.
+        """
         while True:
             if self.check_usb():
                 if not self.is_usb_connected:
@@ -120,6 +145,11 @@ class App:
             time.sleep(1)
 
     def browse_file(self, title= "Select a file"):
+        """
+        @brief Opens a file dialog to select a file.
+        @param title The title of the file dialog.
+        @return The path to the selected file.
+        """
         file_path = filedialog.askopenfilename(title= title)
         if file_path:
             self.status_label.config(text=f"Status: File selected: {file_path}")
@@ -129,6 +159,10 @@ class App:
             return None
 
     def sign_data(self, file_path):
+        """
+        @brief Signs the content of a PDF file.
+        @param file_path The path to the PDF file to be signed.
+        """
         reader = PdfReader(file_path)
         writer = PdfWriter()
 
@@ -157,6 +191,9 @@ class App:
             writer.write(f)
 
     def sign_button_click(self):
+        """
+        @brief Handles the click event for the "Sign" button.
+        """
         if not self.file:
             self.status_label.config(text="Status: No file selected")
             return
@@ -169,6 +206,12 @@ class App:
         self.status_label.config(text="Status: File signed successfully")
 
     def validate_signature(self, file_path,public_key_path):
+        """
+        @brief Validates the signature of a PDF file.
+        @param file_path The path to the signed PDF file.
+        @param public_key_path The path to the public key file.
+        @return True if the signature is valid, False otherwise.
+        """
         reader = PdfReader(file_path)
 
         signature_hex = reader.metadata.get("/Signature", "")
@@ -200,6 +243,9 @@ class App:
             return False
 
     def validate_button_click(self):
+        """
+        @brief Handles the click event for the "Validate" button.
+        """
         if not self.file:
             self.status_label.config(text="Status: No file selected")
             return
@@ -215,6 +261,9 @@ class App:
             self.status_label.config(text="Status: Signature is invalid")
 
 def main():
+    """
+    @brief The main entry point of the application.
+    """
     root = tk.Tk()
     app = App(root)
     root.mainloop()
